@@ -7,6 +7,10 @@ package main
 
 import (
 	"fmt"
+	"image"
+	"image/color"
+	"image/png"
+	"os"
 )
 
 /*
@@ -21,26 +25,24 @@ type cell struct {
 func main(){
 	fmt.Println("hello")
 
-	size := 20
-	var p [20][20]cell
+	//makes the cell array and the output image
+	size := 1000
+	var p [1000][1000]cell
+	imgOut := image.NewNRGBA(image.Rect(0,0,1000,1000))
 
-	//prints array out, hardcoded for 20 columns
-	for a := 0;a < size;a++ {
-		fmt.Println(fmt.Sprintf("%d%d%d%d%d%d%d%d%d%d%d%d%d%d%d%d%d%d%d%d",p[a][0].alive,p[a][1].alive,p[a][2].alive,p[a][3].alive,p[a][4].alive,p[a][5].alive,p[a][6].alive,p[a][7].alive,p[a][8].alive,p[a][9].alive,p[a][10].alive,p[a][11].alive,p[a][12].alive,p[a][13].alive,p[a][14].alive,p[a][15].alive,p[a][16].alive,p[a][17].alive,p[a][18].alive,p[a][19].alive))
-	}
-
-	fmt.Println("")
-	fmt.Println("---------------------------------------")
-	fmt.Println("")
-
-	//makes initial pattern
 	//initial pattern is a single cell at the centerish
-	p[size/2][size/2].alive = 1
-	
+//	p[size/2][size/2].alive = 1
+
+	//initial pattern is all four corners are alive
+	p[0][0].alive=1
+	p[size-1][size-1].alive=1
+	p[0][size-1].alive=1
+	p[size-1][0].alive=1
 
 
-	//5 iterations for testing
-	for z:=0;z<5;z++{
+	//1000 iterations, each one updates the entire image of alive/dead
+	//more iterations = more complex and interesting image
+	for z:=0;z<1000;z++{
 
 	//update all cells in array
 	for i:=0;i<size;i++{
@@ -90,24 +92,21 @@ func main(){
 		for jj:=0;jj<size;jj++{
 			if p[ii][jj].toenable == true {
 				p[ii][jj].alive=1
+				imgOut.Set(ii,jj, color.RGBA{255,255,255,255})
 			} else {
 				p[ii][jj].alive=0
+				imgOut.Set(ii,jj, color.RGBA{0,0,0,255})
 			}
-			
+
 			p[ii][jj].toenable = false
 
 		}
 	}
 
-	//prints array out, hardcoded for 20 columns
-	for a := 0;a < size;a++ {
-		fmt.Println(fmt.Sprintf("%d%d%d%d%d%d%d%d%d%d%d%d%d%d%d%d%d%d%d%d",p[a][0].alive,p[a][1].alive,p[a][2].alive,p[a][3].alive,p[a][4].alive,p[a][5].alive,p[a][6].alive,p[a][7].alive,p[a][8].alive,p[a][9].alive,p[a][10].alive,p[a][11].alive,p[a][12].alive,p[a][13].alive,p[a][14].alive,p[a][15].alive,p[a][16].alive,p[a][17].alive,p[a][18].alive,p[a][19].alive))
-	}
+	}//end of iterations for image updating
 
-	fmt.Println("")
-	fmt.Println("---------------------------------------")
-	fmt.Println("")
-
-	}//end of 5 iterations for testing
-
+	fmt.Println("generated png image, saving...")
+	f, _ := os.OpenFile("out.png", os.O_WRONLY|os.O_CREATE, 0600)
+	defer f.Close()
+	png.Encode(f,imgOut)
 }
